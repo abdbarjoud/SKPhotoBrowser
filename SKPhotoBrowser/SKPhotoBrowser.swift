@@ -351,7 +351,12 @@ internal extension SKPhotoBrowser {
         if UIInterfaceOrientationIsLandscape(currentOrientation) {
             height = 32
         }
-        return CGRect(x: 0, y: view.bounds.size.height - height, width: view.bounds.size.width, height: height)
+        var shift:CGFloat = 0.0
+        if let del = delegate , view = del.viewForExtentionFooter!()
+        {
+            shift = view.bounds.height
+        }
+        return CGRect(x: 0, y: view.bounds.size.height - (shift + height), width: view.bounds.size.width, height: height)
     }
     
     func frameForToolbarHideAtOrientation() -> CGRect {
@@ -369,6 +374,11 @@ internal extension SKPhotoBrowser {
         pageFrame.size.width -= (2 * 10)
         pageFrame.origin.x = (bounds.size.width * CGFloat(index)) + 10
         return pageFrame
+    }
+    
+    func frameForFooterExtention(footer:UIView) -> CGRect {
+                let height = footer.bounds.size.height
+                return CGRect(x: 0, y: view.bounds.size.height - height, width: view.bounds.size.width, height: height)
     }
 }
 
@@ -547,6 +557,11 @@ private extension SKPhotoBrowser {
     func configureToolbar() {
         toolbar = SKToolbar(frame: frameForToolbarAtOrientation(), browser: self)
         view.addSubview(toolbar)
+        if let footer = delegate?.viewForExtentionFooter!()
+        {
+            footer.frame =  self.frameForFooterExtention(footer)
+            view.addSubview(footer)
+        }
     }
     
     func setControlsHidden(hidden: Bool, animated: Bool, permanent: Bool) {
